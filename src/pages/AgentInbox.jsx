@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAgentInquiries, markInquiryRead } from '../api';
 
@@ -11,6 +11,19 @@ function AgentInbox() {
     const [showModal, setShowModal] = useState(false);
     const [user, setUser] = useState(null);
     const navigate = useNavigate();
+
+    const loadInquiries = useCallback(async (email) => {
+        try {
+            const data = await getAgentInquiries(email);
+            const msgs = data.inquiries || [];
+            setInquiries(msgs);
+            applyFilter(msgs, currentFilter);
+        } catch (error) {
+            console.error('Error loading inquiries:', error);
+        } finally {
+            setLoading(false);
+        }
+    }, [currentFilter]);
 
     useEffect(() => {
         const token = localStorage.getItem('tetherng_token');
@@ -29,20 +42,7 @@ function AgentInbox() {
         
         setUser(parsedUser);
         loadInquiries(parsedUser.email);
-    }, [navigate]);
-
-    const loadInquiries = async (email) => {
-        try {
-            const data = await getAgentInquiries(email);
-            const msgs = data.inquiries || [];
-            setInquiries(msgs);
-            applyFilter(msgs, currentFilter);
-        } catch (error) {
-            console.error('Error loading inquiries:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    }, [navigate, loadInquiries]);
 
     const applyFilter = (msgs, filter) => {
         let filtered = msgs;
@@ -164,7 +164,6 @@ function AgentInbox() {
                 )}
             </div>
 
-            {/* Modal */}
             {showModal && selectedInquiry && (
                 <div className="modal" style={{ display: 'flex' }} onClick={closeModal}>
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
