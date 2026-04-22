@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { updateProperty, getProperty, deleteProperty } from '../api'; // ← deleteProperty added here
+import { updateProperty, getProperty, deleteProperty } from '../api';
 
 function EditProperty() {
     const { id } = useParams();
@@ -24,26 +24,7 @@ function EditProperty() {
 
     const images = ['🏠', '🏢', '🏘️', '🏡', '🏚️', '🏤'];
 
-    useEffect(() => {
-        const token = localStorage.getItem('tetherng_token');
-        const userData = localStorage.getItem('tetherng_user');
-        
-        if (!token || !userData) {
-            navigate('/agent-signin');
-            return;
-        }
-        
-        const parsedUser = JSON.parse(userData);
-        if (parsedUser.type !== 'agent') {
-            navigate('/agent-signin');
-            return;
-        }
-        
-        setUser(parsedUser);
-        loadProperty();
-    }, [id, navigate]);
-
-    const loadProperty = async () => {
+    const loadProperty = useCallback(async () => {
         try {
             const data = await getProperty(id);
             const prop = data.property;
@@ -65,7 +46,26 @@ function EditProperty() {
             console.error('Error loading property:', error);
             setError('Failed to load property');
         }
-    };
+    }, [id]);
+
+    useEffect(() => {
+        const token = localStorage.getItem('tetherng_token');
+        const userData = localStorage.getItem('tetherng_user');
+        
+        if (!token || !userData) {
+            navigate('/agent-signin');
+            return;
+        }
+        
+        const parsedUser = JSON.parse(userData);
+        if (parsedUser.type !== 'agent') {
+            navigate('/agent-signin');
+            return;
+        }
+        
+        setUser(parsedUser);
+        loadProperty();
+    }, [navigate, loadProperty]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
