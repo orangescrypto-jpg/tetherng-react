@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { updateProperty, getProperty } from '../api';
+import { updateProperty, getProperty, deleteProperty } from '../api';  // ← Added deleteProperty import
 
 function EditProperty() {
     const { id } = useParams();
@@ -131,12 +131,15 @@ function EditProperty() {
 
     const handleDelete = async () => {
         if (window.confirm('⚠️ Are you sure you want to delete this property?\n\nThis action cannot be undone.')) {
+            setLoading(true);
             try {
                 await deleteProperty(id);
-                alert('Property deleted successfully!');
+                alert('✅ Property deleted successfully!');
                 navigate('/agent-dashboard');
             } catch (err) {
-                alert('Error deleting property: ' + err.message);
+                alert('❌ Error deleting property: ' + err.message);
+            } finally {
+                setLoading(false);
             }
         }
     };
