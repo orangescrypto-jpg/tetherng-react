@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getProperty } from '../api';
 
@@ -9,11 +9,7 @@ function PropertyDetail() {
     const [loading, setLoading] = useState(true);
     const [isSaved, setIsSaved] = useState(false);
 
-    useEffect(() => {
-        loadProperty();
-    }, [id]);
-
-    const loadProperty = async () => {
+    const loadProperty = useCallback(async () => {
         try {
             const data = await getProperty(id);
             setProperty(data.property);
@@ -30,7 +26,11 @@ function PropertyDetail() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [id]);
+
+    useEffect(() => {
+        loadProperty();
+    }, [loadProperty]);
 
     const saveProperty = () => {
         const token = localStorage.getItem('tetherng_token');
