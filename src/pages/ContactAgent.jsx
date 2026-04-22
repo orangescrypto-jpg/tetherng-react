@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getProperty, sendInquiry } from '../api';
 
@@ -15,6 +15,16 @@ function ContactAgent() {
         message: ''
     });
 
+    const loadProperty = useCallback(async () => {
+        try {
+            const data = await getProperty(id);
+            setProperty(data.property);
+        } catch (error) {
+            console.error('Error loading property:', error);
+            setError('Failed to load property details');
+        }
+    }, [id]);
+
     useEffect(() => {
         loadProperty();
         
@@ -29,17 +39,7 @@ function ContactAgent() {
                 }));
             }
         }
-    }, [id]);
-
-    const loadProperty = async () => {
-        try {
-            const data = await getProperty(id);
-            setProperty(data.property);
-        } catch (error) {
-            console.error('Error loading property:', error);
-            setError('Failed to load property details');
-        }
-    };
+    }, [loadProperty]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
