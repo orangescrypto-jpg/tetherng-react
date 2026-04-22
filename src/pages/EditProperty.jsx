@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { updateProperty, getProperty, deleteProperty } from '../api';  // ← Added deleteProperty import
+import { updateProperty, getProperty, deleteProperty } from '../api'; // ← deleteProperty added here
 
 function EditProperty() {
     const { id } = useParams();
